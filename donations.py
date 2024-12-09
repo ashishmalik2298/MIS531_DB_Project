@@ -86,8 +86,7 @@ def donations_page():
 
             if submitted:
                 try:
-                    # Handle New Donor
-                    # Handle New Donor
+                    # Determine the donor_id based on donor status (new or existing)
                     if donor_status == "New Donor":
                         # Insert into donor table
                         run_query("""
@@ -105,7 +104,7 @@ def donations_page():
                         # Fetch the most recently added donor_id using Oracle-specific syntax
                         new_donor_id = run_query("""
                             SELECT donor_id FROM donor ORDER BY donor_id DESC FETCH FIRST 1 ROWS ONLY
-                        """)[0][0]  # If you need to handle multiple rows, adjust this.
+                        """)[0][0]
 
                         # Insert into individual_donor or organization_donor based on donor type
                         if donor_type == "INDV":
@@ -129,7 +128,10 @@ def donations_page():
                                 "org_name": org_name
                             })
 
+                        donor_id = new_donor_id  # Assign the new donor id to the general donor_id variable
 
+                    elif donor_status == "Existing Donor":
+                        donor_id = donor_id  # For existing donor, use the selected donor_id
 
                     # Handle Donations
                     run_query("""
@@ -141,7 +143,7 @@ def donations_page():
                         "goods_type": goods_type if goods_type != "None" else None,
                         "goods_condition": goods_condition if goods_condition != "None" else None,
                         "event_id": event_id,
-                        "donor_id": new_donor_id,  # Use the new_donor_id here
+                        "donor_id": donor_id,  # Use the correct donor_id here (either new or existing)
                         "center_id": center_id,
                         "donation_qty": donation_qty
                     })
